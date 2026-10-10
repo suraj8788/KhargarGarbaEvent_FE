@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7b1747"/>
+      <stop offset="1" stop-color="#2b0b2d"/>
+    </linearGradient>
+    <linearGradient id="stick" x1="18" y1="12" x2="46" y2="52" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffd56f"/>
+      <stop offset="1" stop-color="#ef6b35"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="url(#bg)"/>
+  <circle cx="32" cy="32" r="25" fill="none" stroke="#f6b94a" stroke-width="2" stroke-dasharray="2 4"/>
+  <path d="M17 13a4 4 0 0 1 5.6.7l27 32a4 4 0 1 1-6.1 5.1l-27-32a4 4 0 0 1 .5-5.8Z" fill="url(#stick)" stroke="#fff0bd" stroke-width="1.5"/>
+  <path d="M47 13a4 4 0 0 0-5.6.7l-27 32a4 4 0 1 0 6.1 5.1l27-32A4 4 0 0 0 47 13Z" fill="url(#stick)" stroke="#fff0bd" stroke-width="1.5"/>
+  <path d="m19 16 4 5m22-5-4 5M17 43l5 4m25-4-5 4" fill="none" stroke="#9f224f" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="32" cy="32" r="5" fill="#ffcf58" stroke="#fff4c9" stroke-width="2"/>
+  <path d="M32 22v4m0 12v4M22 32h4m12 0h4" stroke="#fff4c9" stroke-width="2" stroke-linecap="round"/>
+</svg>
