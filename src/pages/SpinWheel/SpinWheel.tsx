@@ -9,6 +9,9 @@ import { luckyDrawApi, type LuckyDrawParticipant } from '../../services/luckyDra
 const wheelColors = ['#741f46', '#d94f35', '#3e205d', '#c88926']
 const wheelSymbols = ['✦', '✧', '✦', '✧', '✦', '✧', '✦', '✧', '✦', '✧', '✦', '✧']
 const wheelLights = Array.from({ length: 24 })
+const spinDurationMs = 15000
+const winningMusicStartTime = 19
+const dummyProfilePicture = '/dummy-profile.svg'
 const confettiColors = ['#ff5b38', '#ffd76a', '#7259d9', '#45c98b', '#ff8dcb']
 const confettiPieces = Array.from({ length: 42 }, (_, index) => ({
   left: `${(index * 37) % 100}%`,
@@ -31,9 +34,11 @@ export default function SpinWheel() {
   const admin = getSignedInUser()
   const queryClient = useQueryClient()
   const revealTimerRef = useRef<number | null>(null)
+  const celebrationAudioRef = useRef<HTMLAudioElement>(null)
   const [rotation, setRotation] = useState(0)
   const [winner, setWinner] = useState<LuckyDrawParticipant | null>(null)
   const [isSpinning, setIsSpinning] = useState(false)
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false)
   const [drawError, setDrawError] = useState('')
 
   const eligibleQuery = useQuery({
@@ -64,32 +69,71 @@ export default function SpinWheel() {
         setWinner(result.winner)
         setIsSpinning(false)
         void queryClient.invalidateQueries({ queryKey: ['lucky-draw-eligible', admin?.id] })
-      }, 4200)
+      }, spinDurationMs)
     },
     onError: (error) => {
       setDrawError(getApiErrorMessage(error, 'Lucky draw'))
       setIsSpinning(false)
+      stopCelebrationMusic()
     },
   })
 
   useEffect(() => () => {
     if (revealTimerRef.current !== null) window.clearTimeout(revealTimerRef.current)
+    celebrationAudioRef.current?.pause()
   }, [])
 
   useEffect(() => {
     if (!winner) return
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setWinner(null)
+      if (event.key === 'Escape') closeWinner()
     }
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [winner])
+
+  async function playCelebrationMusic() {
+    const audio = celebrationAudioRef.current
+    if (!audio) return
+    audio.volume = .32
+    if (audio.readyState >= 1) audio.currentTime = winningMusicStartTime
+
+    try {
+      await audio.play()
+      setIsMusicPlaying(true)
+    } catch {
+      setIsMusicPlaying(false)
+    }
+  }
+
+  function stopCelebrationMusic() {
+    const audio = celebrationAudioRef.current
+    if (!audio) return
+    audio.pause()
+    if (audio.readyState >= 1) audio.currentTime = winningMusicStartTime
+    setIsMusicPlaying(false)
+  }
+
+  function closeWinner() {
+    setWinner(null)
+    stopCelebrationMusic()
+  }
+
+  function toggleCelebrationMusic() {
+    if (isMusicPlaying) {
+      celebrationAudioRef.current?.pause()
+      setIsMusicPlaying(false)
+      return
+    }
+    void playCelebrationMusic()
+  }
 
   function spin() {
     if (isSpinning || !eligibleCount) return
     setWinner(null)
     setDrawError('')
     setIsSpinning(true)
+    void playCelebrationMusic()
     spinMutation.mutate()
   }
 
@@ -100,9 +144,28 @@ export default function SpinWheel() {
   const queryError = eligibleQuery.error
     ? getApiErrorMessage(eligibleQuery.error, 'Loading lucky draw users')
     : ''
+  const isCelebrating = isSpinning || Boolean(winner)
 
   return (
-    <main className="page spin-page">
+    <main className={`page spin-page${isCelebrating ? ' is-celebrating' : ''}`}>
+      {isCelebrating && (
+        <video className="spin-celebration-video" autoPlay muted loop playsInline aria-hidden="true">
+          <source src="/garba-background.mp4" type="video/mp4" />
+        </video>
+      )}
+      <audio ref={celebrationAudioRef} src="/kamariya-mitron.mp3" preload="metadata" />
+      {isCelebrating && (
+        <button
+          className={`garba-music-control${isMusicPlaying ? ' is-playing' : ''}`}
+          type="button"
+          aria-label={isMusicPlaying ? 'Pause celebration music' : 'Play celebration music'}
+          aria-pressed={isMusicPlaying}
+          onClick={toggleCelebrationMusic}
+        >
+          <span className="garba-music-icon" aria-hidden="true">{isMusicPlaying ? '♫' : '♪'}</span>
+          <span>Celebration {isMusicPlaying ? 'on' : 'off'}</span>
+        </button>
+      )}
       <section className="spin-copy">
         <span className="eyebrow">EVENT LUCKY DRAW</span>
         <h1>Winner of the Day</h1>
@@ -126,6 +189,7 @@ export default function SpinWheel() {
             '--segment-angle': `${segmentAngle}deg`,
             background: createWheelBackground(wheelSymbols.length),
             transform: `rotate(${rotation}deg)`,
+            transitionDuration: `${spinDurationMs}ms`,
           } as CSSProperties}
         >
           {wheelSymbols.map((symbol, index) => (
@@ -171,12 +235,21 @@ export default function SpinWheel() {
           </div>
           <section className="winner-popup-card">
             <div className="winner-crown" aria-hidden="true">♛</div>
+            <img
+              className="winner-profile-picture"
+              src={winner.profilePicture || dummyProfilePicture}
+              alt={`${winner.fullName}'s profile`}
+              onError={(event) => {
+                event.currentTarget.onerror = null
+                event.currentTarget.src = dummyProfilePicture
+              }}
+            />
             <span className="winner-popup-kicker">Congratulations!</span>
             <h2 id="winner-popup-title">Lucky Winner</h2>
             <strong>{winner.fullName}</strong>
             <a href={`tel:${winner.mobileNumber}`}>{winner.mobileNumber}</a>
             <p>You are one of today’s lucky draw winners!</p>
-            <button className="primary-button" type="button" onClick={() => setWinner(null)}>
+            <button className="primary-button" type="button" onClick={closeWinner}>
               Continue
             </button>
           </section>

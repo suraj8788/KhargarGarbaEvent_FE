@@ -96,6 +96,8 @@
 .empty-card p { margin: 0; color: #756c80; line-height: 1.65; }
 .spin-page::before { position: fixed; z-index: -2; inset: 83px 0 0; background: radial-gradient(circle at 76% 48%, #9b3c493b 0 15%, transparent 38%), radial-gradient(circle at 12% 18%, #d4942530, transparent 28%), linear-gradient(135deg, #16091e 0%, #32102d 48%, #17091f 100%); content: ''; }
 .spin-page::after { position: fixed; z-index: -1; inset: 83px 0 0; opacity: .18; background-image: radial-gradient(circle at 1px 1px, #ffd97a 1px, transparent 1.5px); background-size: 34px 34px; mask-image: radial-gradient(circle at 70% 50%, #000, transparent 70%); content: ''; pointer-events: none; }
+.spin-page.is-celebrating::before { background: radial-gradient(circle at 76% 48%, #9b3c4938 0 15%, transparent 38%), linear-gradient(135deg, #16091ed9, #32102daa 48%, #17091fd6); }
+.spin-celebration-video { position: fixed; z-index: -3; inset: 83px 0 0; width: 100%; height: calc(100vh - 83px); height: calc(100dvh - 83px); object-fit: cover; object-position: center; filter: saturate(.85) contrast(1.05); animation: spin-video-reveal .8s ease-out both; }
 .spin-copy { position: relative; z-index: 2; }
 .spin-copy .eyebrow { display: inline-flex; padding: 8px 13px; border: 1px solid #e9b75266; border-radius: 999px; background: #16091e80; color: #f4ca71; }
 .spin-copy h1 { color: #fff7e8; text-shadow: 0 8px 35px #0006; }
@@ -121,6 +123,7 @@
 .winner-popup-card { position: relative; z-index: 2; width: min(470px, 100%); padding: 38px 34px 34px; border: 2px solid #ffe09c; border-radius: 30px; background: radial-gradient(circle at 50% 0, #fff8d6, #fff 46%); box-shadow: 0 30px 90px #09010cb3, 0 0 70px #ffb23f55; text-align: center; animation: winner-popup-in .55s cubic-bezier(.18,.89,.32,1.28) both; }
 .winner-popup-card::before { position: absolute; inset: 9px; border: 1px solid #f4c96e80; border-radius: 22px; content: ''; pointer-events: none; }
 .winner-crown { display: grid; width: 82px; height: 82px; margin: -76px auto 17px; place-items: center; border: 5px solid #fff5d3; border-radius: 50%; background: linear-gradient(145deg, #ff713d, #f7b833); color: #fff; box-shadow: 0 13px 30px #d7553155; font-size: 42px; }
+.winner-profile-picture { position: relative; display: block; width: 112px; height: 112px; margin: 0 auto 17px; border: 5px solid #fff; border-radius: 50%; background: #f7e9df; box-shadow: 0 10px 26px #5e29412e, 0 0 0 2px #efc873; object-fit: cover; }
 .winner-popup-kicker { color: #d64b2e; font-size: 12px; font-weight: 950; letter-spacing: .18em; text-transform: uppercase; }
 .winner-popup-card h2 { margin: 10px 0 14px; color: #2c193d; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(37px, 6vw, 52px); line-height: 1; }
 .winner-popup-card > strong { display: block; color: #e64c2b; font-size: clamp(27px, 5vw, 38px); overflow-wrap: anywhere; }
@@ -133,6 +136,7 @@
 .firework-three { right: 13%; bottom: 20%; color: #8d7cff; animation-delay: -1.25s; }
 .winner-confetti { position: absolute; top: -24px; left: var(--confetti-left); width: 9px; height: 17px; border-radius: 2px; background: var(--confetti-color); animation: winner-confetti-fall var(--confetti-duration) linear var(--confetti-delay) infinite; transform: rotate(var(--confetti-rotation)); }
 @keyframes wheel-aura { 50% { opacity: .55; transform: scale(1.04); } }
+@keyframes spin-video-reveal { from { opacity: 0; } to { opacity: .72; } }
 @keyframes lucky-star-pulse { 50% { text-shadow: 0 0 14px #ffd76a; transform: scale(1.35) rotate(25deg); } }
 @keyframes winner-popup-in { from { opacity: 0; transform: translateY(24px) scale(.75) rotate(-2deg); } to { opacity: 1; transform: none; } }
 @keyframes winner-firework-burst { 0% { opacity: 0; transform: scale(.1); } 18% { opacity: 1; } 72%, 100% { opacity: 0; transform: scale(1.25); } }
@@ -172,6 +176,7 @@
   .event-highlights ul { grid-template-columns: 1fr; }
   .wheel { border-width: 8px; }
   .wheel-hub { width: 88px; height: 88px; border-width: 6px; font-size: 10px; }
+  .spin-celebration-video { inset-block-start: 69px; height: calc(100vh - 69px); height: calc(100dvh - 69px); }
 }
 
 @media (max-width: 420px) {
@@ -296,8 +301,9 @@
   .photo-upload { gap: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .garba-video { display: none; }
+  .garba-video, .spin-celebration-video { display: none; }
   .garba-registration { background: linear-gradient(135deg, #2b0b2d, #6a173c 55%, #bb482f); }
+  .spin-page.is-celebrating::before { background: linear-gradient(135deg, #16091e, #32102d 48%, #17091f); }
   .garba-music-control.is-playing .garba-music-icon { animation: none; }
   .scanner-view.is-active .scanner-corners::after { animation: none; }
   .winner-popup-card, .winner-firework, .winner-confetti, .wheel-hub b, .wheel-stage::before { animation: none; }
